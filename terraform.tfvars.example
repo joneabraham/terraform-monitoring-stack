@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+region                 = "ap-south-1"
+cluster_name           = "monitoring-demo"
+node_instance_types    = ["t3.large"]
+node_desired_size      = 2
+grafana_admin_password = "change-me-to-something-long"
+
+# Optional: Alertmanager posts firing alerts here
+# slack_webhook_url = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+
+# Point ArgoCD at your fork
+gitops_repo_url = "https://github.com/joneabraham/terraform-monitoring-stack.git"
