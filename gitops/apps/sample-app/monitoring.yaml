@@ -1,0 +1,35 @@
+# Prometheus scrapes podinfo automatically via this ServiceMonitor,
+# and the rule fires if the app starts returning 5xx errors.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: podinfo
+  namespace: sample-app
+spec:
+  selector:
+    matchLabels:
+      app: podinfo
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: podinfo-rules
+  namespace: sample-app
+spec:
+  groups:
+    - name: podinfo
+      rules:
+        - alert: PodinfoHighErrorRate
+          expr: |
+            sum(rate(http_request_duration_seconds_count{namespace="sample-app",status=~"5.."}[5m]))
+              / sum(rate(http_request_duration_seconds_count{namespace="sample-app"}[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: podinfo 5xx error rate above 5%
+            description: More than 5% of requests to podinfo have failed for 5 minutes.
